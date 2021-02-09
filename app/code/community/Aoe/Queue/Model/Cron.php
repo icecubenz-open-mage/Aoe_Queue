@@ -3,7 +3,7 @@
  * AOE Queue - Queue implementation for Magento based on Zend Queue
  *
  * Cron model handles the processeing of queued jobs
- * 
+ *
  * @category Mage
  * @package  Aoe_Queue
  * @author   Fabrizio Branca
@@ -52,14 +52,20 @@ class Aoe_Queue_Model_Cron
                             if ((microtime(true) - $starttime) > $maxRuntime) {
                                 return $statistics;
                             }
-                        } catch (Exception $e) {
+                        } catch (Aoe_Queue_RecoverableException $e) {
                             /**
                              * Do not release the queue message on purpose
                              * This prevents a bad message from being constantly processed
                              * The message will become available again after the timeout
                              */
+
                             Mage::logException($e);
                             $statistics['__errors__'][$queueName][$message->message_id] = $e->getMessage();
+                        } catch (Exception $e) {
+                            // Catch and Delete
+                            Mage::logException($e);
+                            $statistics['__errors__'][$queueName][$message->message_id] = $e->getMessage();
+                            $queue->deleteMessage($message);
                         }
                     }
                 } else {

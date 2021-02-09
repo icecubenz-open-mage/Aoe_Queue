@@ -29,3 +29,9 @@
     In System > Configuration > Advanced > System > Queue
 
     Use Aoe_Scheduler to run a separate cronjob to process the aoe_queue task so this won't block the other tasks.
+
+
+## Exceptions
+
+In this fork exceptions are logged to cron and the job is discarded.
+If you need to retry on exception use `Aoe_Queue_RecoverableException` - this will log to cron and be queued again after the timeout has expired.
